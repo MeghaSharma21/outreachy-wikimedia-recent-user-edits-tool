@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Lato:100,300,400,700);
+@import url(https://tools-static.wmflabs.org/fontcdn/css?family=Lato:100,300,400,700);
 body {
   font-size: 15px;
 }
@@ -90,6 +90,7 @@ input[type="submit"]:hover {
 
 .wrapper {
   padding: 40px;
+  word-wrap: break-word;
 }
 
 .wrapper:focus {
@@ -156,7 +157,7 @@ input[type="submit"]:hover {
 
 .info-card__unit-stats .stat {
   position: relative;
-  font-size: 24px;
+  font-size: 20px;
   margin-bottom: 10px;
 }
 
@@ -180,7 +181,7 @@ input[type="submit"]:hover {
 }
 
 .stat {
-  text-align: left;
+  text-align: center;
 }
 
 .inline {
@@ -201,5 +202,5 @@ input[type="submit"]:hover {
 }
 
 .fa-edit-icon {
-  padding-left: 2rem;
+  font-size: 2.6em;
 }

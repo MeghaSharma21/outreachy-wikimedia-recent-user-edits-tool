@@ -24,7 +24,7 @@ function fetchRecentEdits() {
       origin: "*",
       list: "usercontribs",
       ucprop: "ids|title|timestamp|size|parsedcomment|flags",
-      ucuser: encodeURIComponent(searchTerm),
+      ucuser: searchTerm,
       ucdir: "older",
       uclimit: "6",
     },
@@ -32,22 +32,26 @@ function fetchRecentEdits() {
       "Api-User-Agent": "outreachy-recent-edits-tool/1.0"
     },
     success: function(data, status, jqXHR) {
+      var html = "";
       if (data.error != null) {
-        document.getElementById("results").innerHTML = "";
+        $('#results').empty();
         alert("Encountered an error while making request. Error:" + data.error
           .info);
-        document.getElementById("results").innerHTML =
-          "<div class='panel panel-default message'> <div class='panel-body'>No results!</div></div>";
+        html = "<div class='panel panel-default message'> <div class='panel-body'>No results!</div></div>";
+        $('#results').html(html);
       } else {
         userContributions = data.query.usercontribs;
-        var html = "";
-        var diffLink = "";
+        var diffLink, articleSize, articleSizeNumberAndUnit, articleSizeNumber, articleSizeUnit;
         for (var i = 0; i < userContributions.length; i++) {
           diffLink =
             "<a class='stat-value' href ='https://en.wikipedia.org/w/index.php?" +
             encodeURIComponent(userContributions[i].title.replace(/ /g,
               "_")) + "&oldid=" + userContributions[i].revid +
-            "&diff=prev'><i class='fa fa-pencil-square-o fa-3x fa-edit-icon' aria-hidden='true'></i></a>";
+            "&diff=prev'><i class='fa fa-pencil-square-o fa-edit-icon' aria-hidden='true'></i></a>";
+          articleSize = formatBytes(userContributions[i].size);
+          articleSizeNumberAndUnit = articleSize.split(" ");
+          articleSizeNumber = articleSizeNumberAndUnit[0];
+          articleSizeUnit = articleSizeNumberAndUnit[1]
           html +=
             "<div class='wrapper inline'>" +
             "<div class='info-card pink'>" +
@@ -64,9 +68,8 @@ function fetchRecentEdits() {
             "<div class='stat-value fa-icon-name'>Diff-Link</div>" +
             "</div>" +
             "<div class='one-third'>" +
-            "<div class='stat'>" + round(userContributions[i].size / 1000,
-              2) + "<sup>kB</sup>" + "</div>" +
-            "<div class='stat-value'>Diff-Size</div>" +
+            "<div class='stat'>" + articleSizeNumber + "<sup>"+ articleSizeUnit + "</sup>" + "</div>" +
+            "<div class='stat-value'>Article Size</div>" +
             "</div>" +
             "<div class='one-third'>" +
             "<div class='stat'>" + (userContributions[i].flags ==
@@ -85,14 +88,14 @@ function fetchRecentEdits() {
             searchTerm.replace(/</g, "&lt;").replace(/>/g, "&gt;") +
             "</div></div>";
         }
-        document.getElementById('results').innerHTML = html;
+        $('#results').html(html);
       }
     },
     error: function(jqXHR, textStatus, error) {
-      document.getElementById("results").innerHTML = "";
+      $('#results').empty();
       formatAjaxErrorMessage(jqXHR, error);
-      document.getElementById("results").innerHTML =
-        "<div class='panel panel-default message'> <div class='panel-body'>No results!</div></div>";
+      var html = "<div class='panel panel-default message'> <div class='panel-body'>No results!</div></div>";
+      $('#results').html(html);
     }
   });
 }
@@ -119,10 +122,14 @@ function formatAjaxErrorMessage(jqXHR, error) {
   }
 }
 
-/**
- * Function to round off values
- */
-function round(value, precision) {
-  var multiplier = Math.pow(10, precision || 0);
-  return Math.round(value * multiplier) / multiplier;
+/*
+* Function to Convert size in bytes to KB, MB, GB etc
+*/
+function formatBytes(bytes,decimals) {
+   if(bytes == 0) return '0 Bytes';
+   var k = 1024,
+       dm = decimals || 1,
+       sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+       i = Math.floor(Math.log(bytes) / Math.log(k));
+   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
